@@ -16,7 +16,7 @@
 |---|---|
 | **状态 Status** | ✅ **第一版 · v0.1 Release** |
 | **当前阶段 Phase** | MVP 公测准备 · public beta ready |
-| **公网地址 Live URL** | 部署完成后更新 · pending deployment |
+| **公网地址 Live URL** | [as-you-wish-t7ff.onrender.com](https://as-you-wish-t7ff.onrender.com) |
 | **版本 Version** | `0.1.0` |
 
 > 本项目为第一版公测产品，AI 内容可能存在误差，请以权威资料为准。
@@ -193,7 +193,7 @@ AsYouWish/
 - [x] 收藏 / 最近播放 / 分享
 - [x] 服务端定位反查代理
 - [x] 双声音试听与分段播放控制
-- [ ] 公网部署 · Public deployment（进行中）
+- [x] 公网部署 · Public deployment
 - [ ] 10 城深度内容模板
 - [ ] 车机 / CarPlay 原型
 - [ ] visionOS AR 客户端
