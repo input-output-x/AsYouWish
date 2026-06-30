@@ -30,6 +30,8 @@ export function GET() {
         ? deepseekConfigured
         : Boolean(process.env.OPENAI_API_KEY),
       prompt: promptConfigured,
+      promptLength: promptValue?.length ?? 0,
+      promptPrefix: promptValue?.slice(0, 12) ?? "",
     },
   });
 }
