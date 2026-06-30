@@ -1,6 +1,6 @@
 # 想你所想 · AsYouWish
 
-[![Status](https://img.shields.io/badge/status-未上线%20Not%20Launched-orange)](https://github.com/input-output-x/AsYouWish)
+[![Status](https://img.shields.io/badge/status-v0.1%20Release-green)](https://github.com/input-output-x/AsYouWish)
 [![Version](https://img.shields.io/badge/version-0.1.0-blue)](package.json)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
 [![License](https://img.shields.io/badge/license-private-lightgrey)](#license--许可证)
@@ -14,13 +14,13 @@
 
 | | |
 |---|---|
-| **状态 Status** | 🚧 **开发中 · In Development** — **尚未上线 · Not Yet Launched** |
-| **当前阶段 Phase** | MVP（本地可运行 · local dev only） |
-| **公网地址 Live URL** | 暂无 · None — 尚未部署 · not deployed |
+| **状态 Status** | ✅ **第一版 · v0.1 Release** |
+| **当前阶段 Phase** | MVP 公测准备 · public beta ready |
+| **公网地址 Live URL** | 部署完成后更新 · pending deployment |
 | **版本 Version** | `0.1.0` |
 
-> ⚠️ 本项目为早期原型，**暂无线上服务**。请克隆后在本地运行。  
-> *Early prototype. **No public deployment yet.** Clone and run locally.*
+> 本项目为第一版公测产品，AI 内容可能存在误差，请以权威资料为准。
+> *This is an early public beta. AI-generated content may contain inaccuracies.*
 
 ---
 
@@ -70,8 +70,12 @@
 | 🗺️ 全国城市 | 337 个地级城市，按省 / 直辖市 / 自治区划分 |
 | 🎭 叙事风格 | 神话、未来、美食、历史、科技、综合 |
 | 🤖 AI 生成 | DeepSeek / OpenAI 结构化城市故事 |
-| 🔊 语音朗读 | Edge 神经语音「晓晓」，温柔年轻女声 |
+| 🔊 语音朗读 | Edge 神经语音「晓晓」女声 /「云扬」男声，可试听切换 |
+| ⏯️ 播放控制 | 暂停续播、上一段、下一段、失败重试 |
 | 📍 到达触发 | GPS 检测新城市，询问是否播放 |
+| ⭐ 收藏复听 | 本机保存收藏与最近播放 |
+| 📤 一键分享 | Web Share / 剪贴板 fallback |
+| 🧭 定位代理 | 服务端反查城市，减少浏览器端不稳定 |
 | 🥽 AR 预留 | API 支持 `format: "ar"` 返回空间锚点 |
 
 ---
@@ -110,6 +114,7 @@ npm run dev
 # DeepSeek（推荐 · recommended）
 LLM_PROVIDER=deepseek
 DEEPSEEK_API_KEY=sk-your-key-here
+STORY_PROMPT_CONFIG_BASE64=your-private-base64-config
 
 # 或 OpenAI · or OpenAI
 LLM_PROVIDER=openai
@@ -128,8 +133,9 @@ OPENAI_API_KEY=sk-your-key-here
 | `LLM_PROVIDER` | `mock` / `openai` / `deepseek` | `mock` |
 | `DEEPSEEK_API_KEY` | DeepSeek API 密钥 | — |
 | `OPENAI_API_KEY` | OpenAI API 密钥 | — |
-| `TTS_VOICE` | Edge 语音名称 | `zh-CN-XiaoxiaoNeural` |
-| `TTS_RATE` | 语速 | `0.92` |
+| `STORY_PROMPT_CONFIG_BASE64` | 私有故事 Prompt 配置（真实 LLM 必需） | — |
+| `TTS_FEMALE_VOICE` | Edge 女声名称 | `zh-CN-XiaoxiaoNeural` |
+| `TTS_MALE_VOICE` | Edge 男声名称 | `zh-CN-YunyangNeural` |
 | `NEXT_PUBLIC_TTS_PROVIDER` | `edge` / `browser` | `edge` |
 
 完整列表 · Full list: [`.env.example`](.env.example)
@@ -145,7 +151,7 @@ AsYouWish/
 │   ├── app/               # Next.js 页面与 API · pages & routes
 │   ├── components/        # UI 组件 · UI components
 │   └── lib/
-│       ├── prompts/       # 提示词模板 · prompt templates
+│       ├── prompt-config.ts # 从加密环境变量加载私有 Prompt
 │       ├── regions.ts     # 全国城市数据 · city data
 │       ├── story-engine.ts
 │       ├── tts.ts
@@ -162,6 +168,7 @@ AsYouWish/
 |---------------|------------------|
 | [PRD.md](docs/PRD.md) | 产品需求文档 · Product requirements |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | 技术架构 · Technical architecture |
+| [DEPLOYMENT.md](docs/DEPLOYMENT.md) | 部署检查清单 · Deployment checklist |
 | [IP-PROTECTION.md](docs/IP-PROTECTION.md) | 知识产权说明 · IP protection notes |
 
 ---
@@ -180,10 +187,13 @@ AsYouWish/
 
 ## 路线图 · Roadmap
 
-- [x] MVP Web 版（本地运行）
+- [x] MVP Web 第一版
 - [x] 全国城市按省划分
 - [x] DeepSeek 叙事 + 晓晓语音
-- [ ] 公网部署 · Public deployment
+- [x] 收藏 / 最近播放 / 分享
+- [x] 服务端定位反查代理
+- [x] 双声音试听与分段播放控制
+- [ ] 公网部署 · Public deployment（进行中）
 - [ ] 10 城深度内容模板
 - [ ] 车机 / CarPlay 原型
 - [ ] visionOS AR 客户端
@@ -192,8 +202,8 @@ AsYouWish/
 
 ## License · 许可证
 
-本项目目前为 **私有仓库 · private repository**，暂未开放许可证。  
-*No open-source license yet. All rights reserved.*
+本项目暂未开放许可证，保留所有权利。
+*No open-source license. All rights reserved.*
 
 ---
 

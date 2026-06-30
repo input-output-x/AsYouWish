@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: as-you-wish
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: LLM_PROVIDER
+        value: deepseek
+      - key: DEEPSEEK_MODEL
+        value: deepseek-chat
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: STORY_PROMPT_CONFIG_BASE64
+        sync: false
+      - key: NEXT_PUBLIC_TTS_PROVIDER
+        value: edge

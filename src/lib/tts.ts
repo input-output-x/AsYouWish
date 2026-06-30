@@ -2,19 +2,43 @@ export interface TTSOptions {
   rate?: number;
   pitch?: number;
   lang?: string;
+  voiceId?: VoiceId;
 }
 
-/** 温柔年轻女声配置 */
-export const VOICE_PROFILE = {
-  name: "晓晓",
-  description: "温柔女声 · 约 25 岁",
-  edgeVoice: "zh-CN-XiaoxiaoNeural",
-  browserRate: 0.92,
-  browserPitch: 1.05,
-} as const;
+import type { VoiceId } from "@/lib/types";
+
+export const VOICE_PROFILES = {
+  "female-warm": {
+    id: "female-warm",
+    name: "晓晓",
+    label: "温暖女声",
+    edgeVoice: "zh-CN-XiaoxiaoNeural",
+    browserRate: 0.92,
+    browserPitch: 1.05,
+    browserKeywords: ["Xiaoxiao", "Tingting", "Meijia", "Yaoyao", "Huihui", "Female", "女"],
+  },
+  "male-magnetic": {
+    id: "male-magnetic",
+    name: "云扬",
+    label: "磁性男声",
+    edgeVoice: "zh-CN-YunyangNeural",
+    browserRate: 0.9,
+    browserPitch: 0.82,
+    browserKeywords: ["Yunyang", "Yunxi", "Kangkang", "Male", "男"],
+  },
+} as const satisfies Record<VoiceId, {
+  id: VoiceId;
+  name: string;
+  label: string;
+  edgeVoice: string;
+  browserRate: number;
+  browserPitch: number;
+  browserKeywords: readonly string[];
+}>;
 
 let currentAudio: HTMLAudioElement | null = null;
 let currentUtterance: SpeechSynthesisUtterance | null = null;
+let playbackGeneration = 0;
 
 function getTTSProvider(): "edge" | "browser" {
   if (typeof window === "undefined") return "edge";
@@ -26,31 +50,16 @@ export function isTTSSupported(): boolean {
   return getTTSProvider() === "edge" || "speechSynthesis" in window;
 }
 
-function pickGentleFemaleVoice(
-  voices: SpeechSynthesisVoice[]
-): SpeechSynthesisVoice | undefined {
+function pickBrowserVoice(voices: SpeechSynthesisVoice[], voiceId: VoiceId) {
   const zhVoices = voices.filter((v) => v.lang.startsWith("zh"));
+  const profile = VOICE_PROFILES[voiceId];
 
-  const preferred = [
-    "Xiaoxiao",
-    "Tingting",
-    "Meijia",
-    "Yaoyao",
-    "Huihui",
-    "Sinji",
-    "Female",
-    "女",
-  ];
-
-  for (const keyword of preferred) {
+  for (const keyword of profile.browserKeywords) {
     const match = zhVoices.find((v) => v.name.includes(keyword));
     if (match) return match;
   }
 
-  const female = zhVoices.find(
-    (v) => !v.name.match(/male|男|Kangkang|Yu-shu|Li-mu/i)
-  );
-  return female ?? zhVoices[0];
+  return zhVoices[0];
 }
 
 async function speakBrowser(text: string, options: TTSOptions = {}): Promise<void> {
@@ -62,11 +71,12 @@ async function speakBrowser(text: string, options: TTSOptions = {}): Promise<voi
 
   const voices = await loadVoices();
   const utterance = new SpeechSynthesisUtterance(text);
+  const profile = VOICE_PROFILES[options.voiceId ?? "female-warm"];
   utterance.lang = options.lang ?? "zh-CN";
-  utterance.rate = options.rate ?? VOICE_PROFILE.browserRate;
-  utterance.pitch = options.pitch ?? VOICE_PROFILE.browserPitch;
+  utterance.rate = options.rate ?? profile.browserRate;
+  utterance.pitch = options.pitch ?? profile.browserPitch;
 
-  const voice = pickGentleFemaleVoice(voices);
+  const voice = pickBrowserVoice(voices, profile.id);
   if (voice) utterance.voice = voice;
 
   return new Promise((resolve, reject) => {
@@ -83,11 +93,11 @@ async function speakBrowser(text: string, options: TTSOptions = {}): Promise<voi
   });
 }
 
-async function speakEdge(text: string): Promise<void> {
+async function speakEdge(text: string, voiceId: VoiceId): Promise<void> {
   const res = await fetch("/api/tts", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text }),
+    body: JSON.stringify({ text, voiceId }),
   });
 
   if (!res.ok) {
@@ -119,31 +129,70 @@ async function speakEdge(text: string): Promise<void> {
 
 export async function speak(text: string, options: TTSOptions = {}): Promise<void> {
   stopSpeaking();
+  const generation = playbackGeneration;
 
   const provider = getTTSProvider();
 
   if (provider === "edge") {
     try {
-      await speakEdge(text);
+      await speakEdge(text, options.voiceId ?? "female-warm");
       return;
     } catch {
+      if (generation !== playbackGeneration) return;
       // Edge TTS 失败时降级到浏览器语音
     }
   }
 
+  if (generation !== playbackGeneration) return;
   await speakBrowser(text, options);
 }
 
 export function stopSpeaking(): void {
+  playbackGeneration += 1;
   if (currentAudio) {
+    currentAudio.onended = null;
+    currentAudio.onerror = null;
     currentAudio.pause();
     currentAudio.src = "";
+    currentAudio.load();
     currentAudio = null;
   }
   if (typeof window !== "undefined" && "speechSynthesis" in window) {
     window.speechSynthesis.cancel();
     currentUtterance = null;
   }
+}
+
+export function pauseSpeaking(): boolean {
+  if (currentAudio && !currentAudio.paused) {
+    currentAudio.pause();
+    return true;
+  }
+  if (
+    typeof window !== "undefined" &&
+    "speechSynthesis" in window &&
+    window.speechSynthesis.speaking
+  ) {
+    window.speechSynthesis.pause();
+    return true;
+  }
+  return false;
+}
+
+export function resumeSpeaking(): boolean {
+  if (currentAudio?.paused) {
+    void currentAudio.play();
+    return true;
+  }
+  if (
+    typeof window !== "undefined" &&
+    "speechSynthesis" in window &&
+    window.speechSynthesis.paused
+  ) {
+    window.speechSynthesis.resume();
+    return true;
+  }
+  return false;
 }
 
 export function isSpeaking(): boolean {

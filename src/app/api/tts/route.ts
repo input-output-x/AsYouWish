@@ -1,11 +1,20 @@
 import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
+import type { VoiceId } from "@/lib/types";
 
 export const runtime = "nodejs";
 
-/** 温柔年轻女声 · 约 25 岁 */
-const DEFAULT_VOICE = "zh-CN-XiaoxiaoNeural";
-const DEFAULT_RATE = 0.92;
-const DEFAULT_PITCH = "+0Hz";
+const VOICES: Record<VoiceId, { voice: string; rate: number; pitch: string }> = {
+  "female-warm": {
+    voice: "zh-CN-XiaoxiaoNeural",
+    rate: 0.92,
+    pitch: "+0Hz",
+  },
+  "male-magnetic": {
+    voice: "zh-CN-YunyangNeural",
+    rate: 0.9,
+    pitch: "-8Hz",
+  },
+};
 
 function escapeXml(text: string): string {
   return text
@@ -18,15 +27,22 @@ function escapeXml(text: string): string {
 
 export async function POST(req: Request) {
   try {
-    const { text } = (await req.json()) as { text?: string };
+    const { text, voiceId } = (await req.json()) as {
+      text?: string;
+      voiceId?: VoiceId;
+    };
 
     if (!text?.trim()) {
       return Response.json({ error: "text required" }, { status: 400 });
     }
 
-    const voice = process.env.TTS_VOICE ?? DEFAULT_VOICE;
-    const rate = parseFloat(process.env.TTS_RATE ?? String(DEFAULT_RATE));
-    const pitch = process.env.TTS_PITCH ?? DEFAULT_PITCH;
+    const selectedVoiceId: VoiceId =
+      voiceId === "male-magnetic" ? "male-magnetic" : "female-warm";
+    const profile = VOICES[selectedVoiceId];
+    const envPrefix = selectedVoiceId === "male-magnetic" ? "TTS_MALE" : "TTS_FEMALE";
+    const voice = process.env[`${envPrefix}_VOICE`] ?? profile.voice;
+    const rate = parseFloat(process.env[`${envPrefix}_RATE`] ?? String(profile.rate));
+    const pitch = process.env[`${envPrefix}_PITCH`] ?? profile.pitch;
 
     const tts = new MsEdgeTTS();
     await tts.setMetadata(voice, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);

@@ -47,3 +47,10 @@ export interface StyleOption {
   emoji: string;
   description: string;
 }
+
+export interface SavedStory extends CityStory {
+  savedAt: string;
+}
+
+export type UserGender = "male" | "female" | "unspecified";
+export type VoiceId = "female-warm" | "male-magnetic";

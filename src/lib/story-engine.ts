@@ -1,5 +1,5 @@
 import type { CityStory, StoryStyle } from "./types";
-import { buildSystemPrompt, buildUserPrompt } from "./prompts";
+import { buildStoryPrompts } from "./prompt-config";
 import { buildStoryFromKnowledge } from "./city-knowledge";
 
 interface Message {
@@ -142,11 +142,16 @@ export async function generateCityStory(
   city: string,
   style: StoryStyle
 ): Promise<CityStory> {
+  if ((process.env.LLM_PROVIDER ?? "mock") === "mock") {
+    return { city, style, ...buildStoryFromKnowledge(city, style) };
+  }
+
   const provider = getProvider();
+  const prompts = buildStoryPrompts(city, style);
 
   const messages: Message[] = [
-    { role: "system", content: buildSystemPrompt(city, style) },
-    { role: "user", content: buildUserPrompt(city, style) },
+    { role: "system", content: prompts.system },
+    { role: "user", content: prompts.user },
   ];
 
   const raw = await provider.generate(messages);

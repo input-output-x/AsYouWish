@@ -1,5 +1,3 @@
-const NOMINATIM_URL = "https://nominatim.openstreetmap.org/reverse";
-
 export interface GeoPosition {
   lat: number;
   lng: number;
@@ -10,28 +8,15 @@ export async function reverseGeocode(
 ): Promise<string | null> {
   const params = new URLSearchParams({
     lat: String(position.lat),
-    lon: String(position.lng),
-    format: "json",
-    "accept-language": "zh",
-    zoom: "10",
+    lng: String(position.lng),
   });
 
-  const res = await fetch(`${NOMINATIM_URL}?${params}`, {
-    headers: { "User-Agent": "XiangNiSuoXiang/0.1" },
-  });
+  const res = await fetch(`/api/reverse-geocode?${params}`);
 
   if (!res.ok) return null;
 
   const data = await res.json();
-  const address = data.address ?? {};
-
-  return (
-    address.city ??
-    address.town ??
-    address.county ??
-    address.state ??
-    null
-  );
+  return data.city ?? null;
 }
 
 export function watchCityChanges(
