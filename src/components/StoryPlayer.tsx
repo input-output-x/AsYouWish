@@ -14,6 +14,7 @@ import { STYLE_LABELS } from "@/lib/cities";
 import type { VoiceId } from "@/lib/types";
 import { VoicePreference } from "@/components/VoicePreference";
 import { track } from "@/lib/analytics";
+import { StoryFeedback } from "@/components/StoryFeedback";
 
 interface StoryPlayerProps {
   story: CityStory;
@@ -314,9 +315,34 @@ export function StoryPlayer({
         <p className="text-center text-xs text-[var(--text-muted)]">{shareStatus}</p>
       )}
 
-      <p className="text-center text-xs leading-relaxed text-[var(--text-muted)]">
-        本内容由 AI 生成，历史与地点信息可能存在误差，请以权威资料为准。
-      </p>
+      <StoryFeedback story={story} />
+
+      <div className="space-y-2 text-xs leading-relaxed text-[var(--text-muted)]">
+        <p className="text-center">
+          本内容由 AI 生成，历史与地点信息可能存在误差，请以权威资料为准。
+        </p>
+        {story.quality?.curated && (
+          <p className="text-center text-emerald-400">
+            已使用本地城市事实库辅助生成
+          </p>
+        )}
+        {story.quality?.sources && story.quality.sources.length > 0 && (
+          <div className="flex flex-wrap justify-center gap-x-3 gap-y-1">
+            <span>内容参考：</span>
+            {story.quality.sources.map((source) => (
+              <a
+                key={source.url}
+                href={source.url}
+                target="_blank"
+                rel="noreferrer"
+                className="text-[var(--accent)] hover:underline"
+              >
+                {source.label}
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

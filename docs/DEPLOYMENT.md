@@ -27,6 +27,16 @@ DEEPSEEK_MODEL=deepseek-chat
 STORY_PROMPT_CONFIG_BASE64=...
 ```
 
+Optional public-beta analytics:
+
+```bash
+POSTHOG_PROJECT_KEY=phc_...
+POSTHOG_HOST=https://us.i.posthog.com
+```
+
+Without PostHog configuration, events remain in each visitor's local browser
+and the product continues to work normally.
+
 or:
 
 ```bash

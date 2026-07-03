@@ -30,6 +30,7 @@ export function GET() {
         ? deepseekConfigured
         : Boolean(process.env.OPENAI_API_KEY),
       prompt: promptConfigured,
+      analytics: Boolean(process.env.POSTHOG_PROJECT_KEY),
     },
   });
 }

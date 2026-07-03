@@ -76,6 +76,10 @@
 | ⭐ 收藏复听 | 本机保存收藏与最近播放 |
 | 📤 一键分享 | Web Share / 剪贴板 fallback |
 | 🧭 定位代理 | 服务端反查城市，减少浏览器端不稳定 |
+| 📊 公测数据 | 匿名事件统计，支持 PostHog 服务端转发 |
+| 💬 故事反馈 | 喜欢 / 不准确 / 没意思与文字意见 |
+| ✅ 内容可信度 | 10 城本地事实库辅助生成并展示公开参考入口 |
+| 🛡️ 接口保护 | 分钟/小时限流、请求长度限制与 LLM 超时 |
 | 🥽 AR 预留 | API 支持 `format: "ar"` 返回空间锚点 |
 
 ---
@@ -134,6 +138,8 @@ OPENAI_API_KEY=sk-your-key-here
 | `DEEPSEEK_API_KEY` | DeepSeek API 密钥 | — |
 | `OPENAI_API_KEY` | OpenAI API 密钥 | — |
 | `STORY_PROMPT_CONFIG_BASE64` | 私有故事 Prompt 配置（真实 LLM 必需） | — |
+| `POSTHOG_PROJECT_KEY` | PostHog 项目 Key（可选） | — |
+| `POSTHOG_HOST` | PostHog 数据接收域名 | `https://us.i.posthog.com` |
 | `TTS_FEMALE_VOICE` | Edge 女声名称 | `zh-CN-XiaoxiaoNeural` |
 | `TTS_MALE_VOICE` | Edge 男声名称 | `zh-CN-YunyangNeural` |
 | `NEXT_PUBLIC_TTS_PROVIDER` | `edge` / `browser` | `edge` |
@@ -194,6 +200,8 @@ AsYouWish/
 - [x] 服务端定位反查代理
 - [x] 双声音试听与分段播放控制
 - [x] 公网部署 · Public deployment
+- [x] 10 城事实库、内容参考与用户反馈
+- [x] 匿名统计与接口成本保护
 - [ ] 10 城深度内容模板
 - [ ] 车机 / CarPlay 原型
 - [ ] visionOS AR 客户端

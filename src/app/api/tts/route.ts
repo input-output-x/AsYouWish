@@ -1,5 +1,6 @@
 import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 import type { VoiceId } from "@/lib/types";
+import { allowRequest, getClientIp } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -27,12 +28,17 @@ function escapeXml(text: string): string {
 
 export async function POST(req: Request) {
   try {
+    const ip = getClientIp(req);
+    if (!allowRequest("tts", ip, 30, 60_000)) {
+      return Response.json({ error: "请求过于频繁，请稍后再试" }, { status: 429 });
+    }
+
     const { text, voiceId } = (await req.json()) as {
       text?: string;
       voiceId?: VoiceId;
     };
 
-    if (!text?.trim()) {
+    if (!text?.trim() || text.trim().length > 2_000) {
       return Response.json({ error: "text required" }, { status: 400 });
     }
 

@@ -53,6 +53,7 @@ class OpenAIProvider implements LLMProvider {
         temperature: 0.85,
         response_format: { type: "json_object" },
       }),
+      signal: AbortSignal.timeout(45_000),
     });
 
     if (!res.ok) {
@@ -84,6 +85,7 @@ class DeepSeekProvider implements LLMProvider {
         temperature: 0.85,
         response_format: { type: "json_object" },
       }),
+      signal: AbortSignal.timeout(45_000),
     });
 
     if (!res.ok) {

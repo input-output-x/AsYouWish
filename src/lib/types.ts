@@ -13,6 +13,11 @@ export interface StorySegment {
   mood?: string;
 }
 
+export interface StorySource {
+  label: string;
+  url: string;
+}
+
 export interface CityStory {
   city: string;
   style: StoryStyle;
@@ -20,6 +25,10 @@ export interface CityStory {
   hook: string;
   segments: StorySegment[];
   estimatedMinutes: number;
+  quality?: {
+    curated: boolean;
+    sources: StorySource[];
+  };
 }
 
 export interface ARAnchor {
